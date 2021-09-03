@@ -6,7 +6,7 @@ from PIL import Image
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
-# from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split
 
 CLASS_MAPPING = {'COVID':0, 'Lung_Opacity':1, 'Normal':2, 'Viral Pneumonia':3}
 
@@ -50,15 +50,13 @@ def createDataLoader(X, y, test_ratio=0.3):
     :param test_ratio: the proportion of test data
     :return: data loaders of training set and test set
     """
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_ratio)
-    # train_dataset = CovidDataset(X_train, y_train)
-    # test_dataset = CovidDataset(X_test, y_test)
-    # train_loader = DataLoader(train_dataset, batch_size=32)
-    # test_loader = DataLoader(test_dataset, batch_size=32)
-    # return train_loader, test_loader
-    dataset = CovidDataset(X, y)
-    loader = DataLoader(dataset, 32)
-    return loader, loader
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_ratio)
+    train_dataset = CovidDataset(X_train, y_train)
+    test_dataset = CovidDataset(X_test, y_test)
+    train_loader = DataLoader(train_dataset, batch_size=32)
+    test_loader = DataLoader(test_dataset, batch_size=32)
+    return train_loader, test_loader
+
 
 
 if __name__ == '__main__':
