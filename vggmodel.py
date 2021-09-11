@@ -14,8 +14,6 @@ class vggModelA(torch.nn.Module):
         self.conv6 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
         self.conv7 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
         self.conv8 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
-        # self.conv9 = torch.nn.Conv2d(in_channels=1024, out_channels=1024, kernel_size=3)
-        # self.conv10 = torch.nn.Conv2d(in_channels=1024, out_channels=1024, kernel_size=3)
         self.pooling = torch.nn.MaxPool2d(2)
         self.fc1 = torch.nn.Linear(12800, 400)
         self.fc2 = torch.nn.Linear(400, 40)
@@ -231,16 +229,16 @@ def test(model, test_loader, device):
 
 if __name__ == '__main__':
 
-    model = vggModel1()
+    model = vggModelA()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
     X, y = covidata.readData()
-    train_loader, test_loader = covidata.createDataLoader(X, y, 0.2)
+    train_loader, test_loader = covidata.createDataLoader(X, y, 8, 0.2)  # batch_size = 16
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
 
-    for epoch in range(10):
+    for epoch in range(15):
         train(model, epoch, train_loader, optimizer, criterion, device)
         test(model, test_loader, device)
