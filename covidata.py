@@ -43,7 +43,7 @@ class CovidDataset(Dataset):
         return img.view(1, 299, 299), torch.tensor(label)
 
 
-def createDataLoader(X, y, test_ratio=0.3):
+def createDataLoader(X, y, batch_size=32, test_ratio=0.3):
     """
     :param X: The list of image paths
     :param y: The list of labels
@@ -53,8 +53,8 @@ def createDataLoader(X, y, test_ratio=0.3):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_ratio)
     train_dataset = CovidDataset(X_train, y_train)
     test_dataset = CovidDataset(X_test, y_test)
-    train_loader = DataLoader(train_dataset, batch_size=32)
-    test_loader = DataLoader(test_dataset, batch_size=32)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size)
     return train_loader, test_loader
 
 

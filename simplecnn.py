@@ -68,7 +68,7 @@ if __name__ == '__main__':
     model.to(device)
 
     X, y = covidata.readData()
-    train_loader, test_loader = covidata.createDataLoader(X, y, 0.2)
+    train_loader, test_loader = covidata.createDataLoader(X, y, 16, 0.2)
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
