@@ -3,9 +3,9 @@ import torch.nn.functional as F
 import covidata
 
 
-class vggModel1(torch.nn.Module):
+class vggModelA(torch.nn.Module):
     def __init__(self):
-        super(vggModel1, self).__init__()
+        super(vggModelA, self).__init__()
         self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3)
         self.conv2 = torch.nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
         self.conv3 = torch.nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3)
@@ -34,6 +34,165 @@ class vggModel1(torch.nn.Module):
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
 
+        return x
+
+
+class vggModelB(torch.nn.Module):
+    def __init__(self):
+        super(vggModelB, self).__init__()
+        self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3)
+        self.conv2 = torch.nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3)
+
+        self.conv3 = torch.nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
+        self.conv4 = torch.nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3)
+
+        self.conv5 = torch.nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3)
+        self.conv6 = torch.nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3)
+
+        self.conv7 = torch.nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3)
+        self.conv8 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+
+        self.conv9 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv10 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.pooling = torch.nn.MaxPool2d(2)
+        self.fc1 = torch.nn.Linear(12800, 400)
+        self.fc2 = torch.nn.Linear(400, 40)
+        self.fc3 = torch.nn.Linear(40, 4)
+
+    def forward(self, x):
+        batch_size = x.size(0)
+        x = F.relu(self.pooling(self.conv2(self.conv1(x))))
+        x = F.relu(self.pooling(self.conv4(self.conv3(x))))
+        x = F.relu(self.pooling(self.conv6(self.conv5(x))))
+        x = F.relu(self.pooling(self.conv8(self.conv7(x))))
+        x = F.relu(self.pooling(self.conv10(self.conv9(x))))
+        x = x.view(batch_size, -1)  # 12800
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+
+        return x
+
+
+class vggModelC(torch.nn.Module):
+    def __init__(self):
+        super(vggModelC, self).__init__()
+        self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3)
+        self.conv2 = torch.nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3)
+
+        self.conv3 = torch.nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
+        self.conv4 = torch.nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3)
+
+        self.conv5 = torch.nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3)
+        self.conv6 = torch.nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3)
+        self.conv7 = torch.nn.Conv2d(in_channels=256, out_channels=256, kernel_size=1)
+
+        self.conv8 = torch.nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3)
+        self.conv9 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv10 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=1)
+
+        self.conv11 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv12 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv13 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=1)
+        self.pooling = torch.nn.MaxPool2d(2)
+        self.fc1 = torch.nn.Linear(12800, 400)
+        self.fc2 = torch.nn.Linear(400, 40)
+        self.fc3 = torch.nn.Linear(40, 4)
+
+    def forward(self, x):
+        batch_size = x.size(0)
+        x = F.relu(self.pooling(self.conv2(self.conv1(x))))
+        x = F.relu(self.pooling(self.conv4(self.conv3(x))))
+        x = F.relu(self.pooling(self.conv7(self.conv6(self.conv5(x)))))
+        x = F.relu(self.pooling(self.conv10(self.conv9(self.conv8(x)))))
+        x = F.relu(self.pooling(self.conv13(self.conv12(self.conv11(x)))))
+        x = x.view(batch_size, -1)  # 12800
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        return x
+
+
+class vggModelD(torch.nn.Module):
+    def __init__(self):
+        super(vggModelD, self).__init__()
+        self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3)
+        self.conv2 = torch.nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3)
+
+        self.conv3 = torch.nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
+        self.conv4 = torch.nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3)
+
+        self.conv5 = torch.nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3)
+        self.conv6 = torch.nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3)
+        self.conv7 = torch.nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3)
+
+        self.conv8 = torch.nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3)
+        self.conv9 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv10 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+
+        self.conv11 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv12 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv13 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.pooling = torch.nn.MaxPool2d(2)
+        self.fc1 = torch.nn.Linear(12800, 400)
+        self.fc2 = torch.nn.Linear(400, 40)
+        self.fc3 = torch.nn.Linear(40, 4)
+
+    def forward(self, x):
+        batch_size = x.size(0)
+        x = F.relu(self.pooling(self.conv2(self.conv1(x))))
+        x = F.relu(self.pooling(self.conv4(self.conv3(x))))
+        x = F.relu(self.pooling(self.conv7(self.conv6(self.conv5(x)))))
+        x = F.relu(self.pooling(self.conv10(self.conv9(self.conv8(x)))))
+        x = F.relu(self.pooling(self.conv13(self.conv12(self.conv11(x)))))
+        x = x.view(batch_size, -1)  # 12800
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        return x
+
+
+class vggModelE(torch.nn.Module):
+    def __init__(self):
+        super(vggModelE, self).__init__()
+        self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3)
+        self.conv2 = torch.nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3)
+
+        self.conv3 = torch.nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
+        self.conv4 = torch.nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3)
+
+        self.conv5 = torch.nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3)
+        self.conv6 = torch.nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3)
+        self.conv7 = torch.nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3)
+        self.conv8 = torch.nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3)
+
+        self.conv9 = torch.nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3)
+        self.conv10 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv11 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv12 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+
+        self.conv13 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv14 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv15 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+        self.conv16 = torch.nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3)
+
+
+        self.pooling = torch.nn.MaxPool2d(2)
+        self.fc1 = torch.nn.Linear(12800, 400)
+        self.fc2 = torch.nn.Linear(400, 40)
+        self.fc3 = torch.nn.Linear(40, 4)
+
+    def forward(self, x):
+        batch_size = x.size(0)
+        x = F.relu(self.pooling(self.conv2(self.conv1(x))))
+        x = F.relu(self.pooling(self.conv4(self.conv3(x))))
+        x = F.relu(self.pooling(self.conv8(self.conv7(self.conv6(self.conv5(x))))))
+        x = F.relu(self.pooling(self.conv12(self.conv11(self.conv10(self.conv9(x))))))
+        x = F.relu(self.pooling(self.conv16(self.conv15(self.conv14(self.conv13(x))))))
+        x = x.view(batch_size, -1)  # 12800
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
         return x
 
 
