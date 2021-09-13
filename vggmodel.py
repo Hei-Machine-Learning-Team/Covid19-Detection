@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch.nn import Conv2d, ReLU, MaxPool2d, Linear, Dropout, Flatten
 import covidata
 
 
@@ -64,8 +65,79 @@ class VGG16(torch.nn.Module):
         # 4608
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
+        x = self.fc3(x)
         return x
+
+
+class SE_VGG(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        # define an empty for Conv_ReLU_MaxPool
+        net = []
+
+        # block 1
+        net.append(Conv2d(in_channels=1, out_channels=64, padding=1, kernel_size=3, stride=1))
+        net.append(ReLU())
+        net.append(Conv2d(in_channels=64, out_channels=64, padding=1, kernel_size=3, stride=1))
+        net.append(ReLU())
+        net.append(MaxPool2d(kernel_size=2, stride=2))
+
+        # block 2
+        net.append(Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1))
+        net.append(ReLU())
+        net.append(Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1))
+        net.append(ReLU())
+        net.append(MaxPool2d(kernel_size=2, stride=2))
+
+        # block 3
+        net.append(Conv2d(in_channels=128, out_channels=256, kernel_size=3, padding=1, stride=1))
+        net.append(ReLU())
+        net.append(Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1, stride=1))
+        net.append(ReLU())
+        net.append(Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1, stride=1))
+        net.append(ReLU())
+        net.append(MaxPool2d(kernel_size=2, stride=2))
+
+        # block 4
+        net.append(Conv2d(in_channels=256, out_channels=512, kernel_size=3, padding=1, stride=1))
+        net.append(ReLU())
+        net.append(Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1, stride=1))
+        net.append(ReLU())
+        net.append(Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1, stride=1))
+        net.append(ReLU())
+        net.append(MaxPool2d(kernel_size=2, stride=2))
+
+        # block 5
+        net.append(Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1, stride=1))
+        net.append(ReLU())
+        net.append(Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1, stride=1))
+        net.append(ReLU())
+        net.append(Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1, stride=1))
+        net.append(ReLU())
+        net.append(MaxPool2d(kernel_size=2, stride=2))
+
+        # add net into class property
+        self.extract_feature = torch.nn.Sequential(*net)
+
+        # define an empty container for Linear operations
+        classifier = []
+        classifier.append(Flatten(start_dim=1, end_dim=-1))
+        classifier.append(Linear(in_features=41472, out_features=4096))
+        classifier.append(ReLU())
+        classifier.append(Dropout(p=0.5))
+        classifier.append(Linear(in_features=4096, out_features=4096))
+        classifier.append(ReLU())
+        classifier.append(Dropout(p=0.5))
+        classifier.append(Linear(in_features=4096, out_features=4))
+
+        # add classifier into class property
+        self.classifier = torch.nn.Sequential(*classifier)
+
+    def forward(self, x):
+        feature = self.extract_feature(x)
+        feature = feature.view(x.size(0), -1)
+        classify_result = self.classifier(feature)
+        return classify_result
 
 
 def train(model, epoch, train_loader, optimizer, criterion, device):
@@ -103,7 +175,7 @@ def test(model, test_loader, device):
 
 if __name__ == '__main__':
 
-    model = VGG16()
+    model = SE_VGG()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
@@ -113,6 +185,6 @@ if __name__ == '__main__':
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
 
-    for epoch in range(15):
+    for epoch in range(100):
         train(model, epoch, train_loader, optimizer, criterion, device)
         test(model, test_loader, device)
