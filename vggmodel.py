@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch.nn import Conv2d, ReLU, MaxPool2d, Linear, Dropout, Flatten
 import covidata
+import torchvision
 
 
 class VGG16(torch.nn.Module):
@@ -180,10 +181,14 @@ if __name__ == '__main__':
     model.to(device)
 
     X, y = covidata.readData()
+    transform = torchvision.transforms.Compose([
+        torchvision.transforms.Resize([224, 224]),  # resize the image to suit VGG16
+        torchvision.transforms.ToTensor()
+    ])
     train_loader, test_loader = covidata.createDataLoader(X, y, 32, 0.2)  # batch_size = 16
 
     criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     for epoch in range(100):
         train(model, epoch, train_loader, optimizer, criterion, device)

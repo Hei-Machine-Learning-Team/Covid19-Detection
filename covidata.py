@@ -28,9 +28,10 @@ def readData(path="./COVID-19_Radiography_Dataset/", classes=['COVID', 'Lung_Opa
 
 
 class CovidDataset(Dataset):
-    def __init__(self, X, y):
+    def __init__(self, X, y, transform=transforms.ToTensor()):
         self.X = X
         self.y = y
+        self.transform = transform
 
     def __len__(self):
         return len(self.X)
@@ -38,12 +39,12 @@ class CovidDataset(Dataset):
     def __getitem__(self, index):
         img_path = self.X[index]
         # img = plt.imread(img_path)
-        img = transforms.ToTensor()(Image.open(img_path).convert('L'))
+        img = self.transform(Image.open(img_path).convert('L'))
         label = self.y[index]
         return img.view(1, 299, 299), torch.tensor(label)
 
 
-def createDataLoader(X, y, batch_size=32, test_ratio=0.3):
+def createDataLoader(X, y, batch_size=32, test_ratio=0.3, transform=transforms.ToTensor()):
     """
     :param X: The list of image paths
     :param y: The list of labels
@@ -51,8 +52,8 @@ def createDataLoader(X, y, batch_size=32, test_ratio=0.3):
     :return: data loaders of training set and test set
     """
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_ratio)
-    train_dataset = CovidDataset(X_train, y_train)
-    test_dataset = CovidDataset(X_test, y_test)
+    train_dataset = CovidDataset(X_train, y_train, transform)
+    test_dataset = CovidDataset(X_test, y_test, transform)
     train_loader = DataLoader(train_dataset, batch_size=batch_size)
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
     return train_loader, test_loader
