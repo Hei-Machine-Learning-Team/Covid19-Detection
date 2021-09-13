@@ -184,7 +184,7 @@ if __name__ == '__main__':
         torchvision.transforms.Resize([224, 224]),  # resize the image to suit VGG16
         torchvision.transforms.ToTensor()
     ])
-    train_loader, test_loader = covidata.createDataLoader(X, y, 32, 0.2)  # batch_size = 16
+    train_loader, test_loader = covidata.createDataLoader(X, y, 32, 0.2, transform=transform)  # batch_size = 16
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)

@@ -41,7 +41,7 @@ class CovidDataset(Dataset):
         # img = plt.imread(img_path)
         img = self.transform(Image.open(img_path).convert('L'))
         label = self.y[index]
-        return img.view(1, 299, 299), torch.tensor(label)
+        return img, torch.tensor(label)
 
 
 def createDataLoader(X, y, batch_size=32, test_ratio=0.3, transform=transforms.ToTensor()):
