@@ -122,8 +122,7 @@ class SE_VGG(torch.nn.Module):
 
         # define an empty container for Linear operations
         classifier = []
-        classifier.append(Flatten(start_dim=1, end_dim=-1))
-        classifier.append(Linear(in_features=25088, out_features=4096))
+        classifier.append(Linear(in_features=512*7*7, out_features=4096))
         classifier.append(ReLU())
         classifier.append(Dropout(p=0.5))
         classifier.append(Linear(in_features=4096, out_features=4096))
