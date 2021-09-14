@@ -23,28 +23,32 @@ class vggModelA(torch.nn.Module):
 
     def forward(self, x):
         batch_size = x.size(0)
-        # x = F.relu(self.pooling(self.conv1(x)))
-        # x = F.relu(self.pooling(self.conv2(x)))
-        # x = F.relu(self.pooling(self.conv4(self.conv3(x))))
-        # x = F.relu(self.pooling(self.conv6(self.conv5(x))))
-        # x = F.relu(self.pooling(self.conv8(self.conv7(x))))
-        x = F.relu(self.conv1(x))
-        x = self.pooling(x)
 
-        x = F.relu(self.conv2(x))
-        x = self.pooling(x)
+        # ReLU activation after ReLU
+        x = F.relu(self.pooling(self.conv1(x)))
+        x = F.relu(self.pooling(self.conv2(x)))
+        x = F.relu(self.pooling(self.conv4(self.conv3(x))))
+        x = F.relu(self.pooling(self.conv6(self.conv5(x))))
+        x = F.relu(self.pooling(self.conv8(self.conv7(x))))
 
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
-        x = self.pooling(x)
-
-        x = F.relu(self.conv5(x))
-        x = F.relu(self.conv6(x))
-        x = self.pooling(x)
-
-        x = F.relu(self.conv7(x))
-        x = F.relu(self.conv8(x))
-        x = self.pooling(x)
+        # pooling after ReLU activation
+        # x = F.relu(self.conv1(x))
+        # x = self.pooling(x)
+        #
+        # x = F.relu(self.conv2(x))
+        # x = self.pooling(x)
+        #
+        # x = F.relu(self.conv3(x))
+        # x = F.relu(self.conv4(x))
+        # x = self.pooling(x)
+        #
+        # x = F.relu(self.conv5(x))
+        # x = F.relu(self.conv6(x))
+        # x = self.pooling(x)
+        #
+        # x = F.relu(self.conv7(x))
+        # x = F.relu(self.conv8(x))
+        # x = self.pooling(x)
 
         x = x.view(batch_size, -1)  # 12800
         x = F.relu(self.fc1(x))
