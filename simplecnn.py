@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 import covidata
+import torchvision.transforms as transforms
 
 class SimpleCNN(torch.nn.Module):
     """
@@ -68,6 +69,10 @@ if __name__ == '__main__':
     model.to(device)
 
     X, y = covidata.readData()
+    transform = transforms.Compose([
+        transforms.Grayscale(num_output_channels=1),
+        transforms.ToTensor()
+    ])
     train_loader, test_loader = covidata.createDataLoader(X, y, 16, 0.2)
 
     criterion = torch.nn.CrossEntropyLoss()

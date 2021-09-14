@@ -237,6 +237,7 @@ if __name__ == '__main__':
 
     X, y = covidata.readData()
     transform = torchvision.transforms.Compose([
+        torchvision.transforms.Grayscale(num_output_channels=1),  # convert to grayscale
         torchvision.transforms.Resize([224, 224]),  # resize the image to suit VGG16
         torchvision.transforms.ToTensor()
     ])

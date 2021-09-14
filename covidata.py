@@ -39,7 +39,7 @@ class CovidDataset(Dataset):
     def __getitem__(self, index):
         img_path = self.X[index]
         # img = plt.imread(img_path)
-        img = self.transform(Image.open(img_path).convert('L'))
+        img = self.transform(Image.open(img_path).convert('RGB'))
         label = self.y[index]
         return img, torch.tensor(label)
 

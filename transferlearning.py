@@ -42,8 +42,8 @@ if __name__ == '__main__':
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = torchvision.models.vgg16(pretrained=True)
-    for param in model.parameters():
-        param.requires_grad = False
+    # for param in model.parameters():
+    #     param.requires_grad = False
 
     model.fc = nn.Sequential(
         nn.Linear(2048, 64),
@@ -63,7 +63,6 @@ if __name__ == '__main__':
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.1, hue=0.1),
         transforms.RandomAffine(degrees=40, translate=None, scale=(1, 2), shear=15, resample=False, fillcolor=0),
         transforms.ToTensor(),
-        transforms.Lambda(lambda x: x.repeat(3, 1, 1)),
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     ])
     train_loader, test_loader = covidata.createDataLoader(X, y, 32, 0.2, transform)
