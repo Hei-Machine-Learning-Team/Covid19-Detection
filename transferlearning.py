@@ -45,14 +45,17 @@ if __name__ == '__main__':
     # for param in model.parameters():
     #     param.requires_grad = False
 
+    num_ftrs = model.fc.in_features
+
     model.fc = nn.Sequential(
-        nn.Linear(2048, 64),
+        nn.Linear(num_ftrs, 64),
         nn.ReLU(inplace=True),
         nn.Linear(64, 3)
     ).to(device)
 
+
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.fc.parameters())
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     model.to(device)
 
