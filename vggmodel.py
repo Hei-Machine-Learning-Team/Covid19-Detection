@@ -5,8 +5,9 @@ import covidata
 import torchvision
 
 
+# use lr=0.003, momentum=0.9 and activation after pooling
 class vggModelA(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, n_classes=3):
         super(vggModelA, self).__init__()
         self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3)
         self.conv2 = torch.nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
@@ -19,12 +20,12 @@ class vggModelA(torch.nn.Module):
         self.pooling = torch.nn.MaxPool2d(2)
         self.fc1 = torch.nn.Linear(12800, 400)
         self.fc2 = torch.nn.Linear(400, 40)
-        self.fc3 = torch.nn.Linear(40, 4)
+        self.fc3 = torch.nn.Linear(40, n_classes)
 
     def forward(self, x):
         batch_size = x.size(0)
 
-        # ReLU activation after ReLU
+        # ReLU activation after pooling
         x = F.relu(self.pooling(self.conv1(x)))
         x = F.relu(self.pooling(self.conv2(x)))
         x = F.relu(self.pooling(self.conv4(self.conv3(x))))
@@ -58,7 +59,7 @@ class vggModelA(torch.nn.Module):
 
 
 class VGG16(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, n_classes=3):
         super(VGG16, self).__init__()
         self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3)
         self.conv2 = torch.nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3)
@@ -80,7 +81,7 @@ class VGG16(torch.nn.Module):
         self.pooling = torch.nn.MaxPool2d(kernel_size=2, stride=2)
         self.fc1 = torch.nn.Linear(4608, 256)
         self.fc2 = torch.nn.Linear(256, 256)
-        self.fc3 = torch.nn.Linear(256, 4)
+        self.fc3 = torch.nn.Linear(256, n_classes)
 
     def forward(self, x):
         batch_size = x.size(0)
@@ -123,7 +124,7 @@ class VGG16(torch.nn.Module):
 
 
 class SE_VGG(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, n_classes=3):
         super().__init__()
         # define an empty for Conv_ReLU_MaxPool
         net = []
@@ -177,10 +178,13 @@ class SE_VGG(torch.nn.Module):
         classifier.append(Linear(in_features=512*7*7, out_features=4096))
         classifier.append(ReLU())
         classifier.append(Dropout(p=0.5))
-        classifier.append(Linear(in_features=4096, out_features=4096))
+        classifier.append(Linear(in_features=4096, out_features=512))
         classifier.append(ReLU())
         classifier.append(Dropout(p=0.5))
-        classifier.append(Linear(in_features=4096, out_features=4))
+        classifier.append(Linear(in_features=512, out_features=32))
+        classifier.append(ReLU())
+        classifier.append(Dropout(p=0.5))
+        classifier.append(Linear(in_features=32, out_features=n_classes))
 
         # add classifier into class property
         self.classifier = torch.nn.Sequential(*classifier)
@@ -227,16 +231,16 @@ def test(model, test_loader, device):
 
 if __name__ == '__main__':
 
-    model = vggModelA()
+    model = SE_VGG(n_classes=3)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
     X, y = covidata.readData()
-    # transform = torchvision.transforms.Compose([
-    #     torchvision.transforms.Resize([224, 224]),  # resize the image to suit VGG16
-    #     torchvision.transforms.ToTensor()
-    # ])
-    transform = torchvision.transforms.ToTensor()
+    transform = torchvision.transforms.Compose([
+        torchvision.transforms.Resize([224, 224]),  # resize the image to suit VGG16
+        torchvision.transforms.ToTensor()
+    ])
+    # transform = torchvision.transforms.ToTensor()
     train_loader, test_loader = covidata.createDataLoader(X, y, 32, 0.2, transform=transform)  # batch_size = 16
 
     criterion = torch.nn.CrossEntropyLoss()

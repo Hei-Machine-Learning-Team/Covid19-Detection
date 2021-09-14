@@ -8,9 +8,9 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
 
-CLASS_MAPPING = {'COVID':0, 'Lung_Opacity':1, 'Normal':2, 'Viral Pneumonia':3}
+CLASS_MAPPING = {'COVID':0, 'Normal':1, 'Viral Pneumonia':2, 'Lung_Opacity':3}
 
-def readData(path="./COVID-19_Radiography_Dataset/", classes=['COVID', 'Lung_Opacity', 'Normal', 'Viral Pneumonia']):
+def readData(path="./COVID-19_Radiography_Dataset/", classes=['COVID', 'Normal', 'Viral Pneumonia']):
     """
     :param path: path of dataset
     :param classes: folder names or labels
