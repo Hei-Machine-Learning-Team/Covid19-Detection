@@ -1,8 +1,9 @@
 import torch
 import torch.nn.functional as F
 from torch.nn import Conv2d, ReLU, MaxPool2d, Linear, Dropout, Flatten
-import covidata
 import torchvision
+from utils import train, test, eval_model
+import covidata
 
 
 # use lr=0.003, momentum=0.9 and activation after pooling
@@ -194,39 +195,6 @@ class SE_VGG(torch.nn.Module):
         feature = feature.view(x.size(0), -1)
         classify_result = self.classifier(feature)
         return classify_result
-
-
-def train(model, epoch, train_loader, optimizer, criterion, device):
-    running_loss = 0.0
-    for batch_idx, data in enumerate(train_loader, 0):
-        inputs, target = data
-        inputs, target = inputs.to(device), target.to(device)
-        optimizer.zero_grad()
-
-        # forward + backward + update
-        outputs = model(inputs)
-        loss = criterion(outputs, target.long())
-        loss.backward()
-        optimizer.step()
-
-        running_loss += loss.item()
-        if batch_idx % 50 == 49:
-            print('[%d, %5d] loss: %.3f' % (epoch + 1, batch_idx + 1, running_loss))
-            running_loss = 0.0
-
-
-def test(model, test_loader, device):
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for data in test_loader:
-            inputs, target = data
-            inputs, target = inputs.to(device), target.to(device)
-            outputs = model(inputs)
-            _, predicted = torch.max(outputs.data, dim=1)
-            total += target.size(0)
-            correct += (predicted == target).sum().item()
-    print('Accuracy on test set: %d %% [%d/%d]' % (100 * correct / total, correct, total))
 
 
 if __name__ == '__main__':
