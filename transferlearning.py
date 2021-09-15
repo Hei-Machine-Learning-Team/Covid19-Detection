@@ -41,18 +41,21 @@ def test(model, test_loader, device):
 if __name__ == '__main__':
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # Load the pretrained model from pytorch
+    # vgg16 = models.vgg16_bn()
+    # vgg16.load_state_dict(torch.load("../input/vgg16bn/vgg16_bn.pth"))
     model = torchvision.models.vgg16(pretrained=True)
-    # for param in model.parameters():
-    #     param.requires_grad = False
+    # print(model.classifier[6].out_features)  # 1000
 
-    num_ftrs = model.fc.in_features
+    # Freeze training for all layers
+    for param in model.features.parameters():
+        param.require_grad = False
 
-    model.fc = nn.Sequential(
-        nn.Linear(num_ftrs, 64),
-        nn.ReLU(inplace=True),
-        nn.Linear(64, 3)
-    ).to(device)
-
+    # Newly created modules have require_grad=True by default
+    num_features = model.classifier[6].in_features
+    features = list(model.classifier.children())[:-1]  # Remove last layer
+    features.extend([nn.Linear(num_features, 3)])  # Add our layer with # features outputs
+    model.classifier = nn.Sequential(*features)  # Replace the model classifier
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
