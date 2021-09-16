@@ -49,15 +49,14 @@ def createDataLoader(X, y, batch_size=32, test_ratio=0.3, transform=transforms.T
     :param X: The list of image paths
     :param y: The list of labels
     :param test_ratio: the proportion of test data
-    :return: data loaders of training set and test set
+    :return: test set for later model evaluation, data loaders of training set and test set
     """
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_ratio)
     train_dataset = CovidDataset(X_train, y_train, transform)
     test_dataset = CovidDataset(X_test, y_test, transform)
     train_loader = DataLoader(train_dataset, batch_size=batch_size)
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
-    return train_loader, test_loader
-
+    return X_test, y_test, train_loader, test_loader
 
 
 if __name__ == '__main__':
