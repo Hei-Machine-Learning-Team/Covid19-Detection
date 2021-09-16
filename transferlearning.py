@@ -21,13 +21,27 @@ def initialize_model(model_name, num_classes, feature_extract=True, use_pretrain
     model_ft = None
     input_size = 0
 
-    if model_name == "resnet":
+    if model_name == "resnet18":
         """ Resnet18
         """
         model_ft = models.resnet18(pretrained=use_pretrained)
         set_parameter_requires_grad(model_ft, feature_extract)
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+    if model_name == "resnet50":
+        """ Resnet50
+                """
+        model_ft = models.resnet50(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        # num_ftrs = model_ft.fc.in_features
+        # model_ft.fc = nn.Linear(num_ftrs, num_classes)
+
+        model_ft.fc = nn.Sequential(
+            nn.Linear(2048, 64),
+            nn.ReLU(inplace=True),
+            nn.Linear(64, 3))
         input_size = 224
 
     elif model_name == "alexnet":
@@ -44,8 +58,14 @@ def initialize_model(model_name, num_classes, feature_extract=True, use_pretrain
         """
         model_ft = models.vgg16(pretrained=use_pretrained)
         set_parameter_requires_grad(model_ft, feature_extract)
-        num_ftrs = model_ft.classifier[6].in_features
-        model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
+        # num_ftrs = model_ft.classifier[6].in_features
+        # model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
+
+        model_ft.classifier = nn.Sequential(nn.Linear(25088, 4096),
+                                            nn.ReLU(inplace=True),
+                                            nn.Linear(4096, 128),
+                                            nn.ReLU(inplace=True),
+                                            nn.Linear(128, num_classes))
         input_size = 224
 
     elif model_name == "squeezenet":
