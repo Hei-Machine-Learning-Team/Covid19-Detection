@@ -45,7 +45,7 @@ if __name__ == '__main__':
         transforms.Grayscale(num_output_channels=1),
         transforms.ToTensor()
     ])
-    train_loader, test_loader = covidata.createDataLoader(X, y, 16, 0.2)
+    X_test, y_test, train_loader, test_loader = covidata.createDataLoader(X, y, 16, 0.2)
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.5)

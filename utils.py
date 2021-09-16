@@ -35,13 +35,18 @@ def test(model, test_loader, device):
 
 
 def eval_model(model, test_loader):
-    correct = 0
-    total = 0
+    # return a confusion matrix to evaluate the model
     with torch.no_grad():
         for data in test_loader:
             inputs, target = data
             outputs = model(inputs)
             _, predicted = torch.max(outputs.data, dim=1)
-            total += target.size(0)
-            correct += (predicted == target).sum().item()
-    pass
+    confusion_matrix = torch.zeros(size=(4, 4), dtype=int)
+    for k in range(len(target)):
+        i = target[k]
+        j = predicted[k]
+        confusion_matrix[i][j] += 1
+    return confusion_matrix
+
+
+
