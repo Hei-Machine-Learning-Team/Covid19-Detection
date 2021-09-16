@@ -1,45 +1,156 @@
 import torch
+import numpy as np
 import torch.nn as nn
-import torchvision
+from torch.utils.data import DataLoader
 import covidata
-import torchvision.transforms as transforms
+from torchvision import models, transforms
+from sklearn.model_selection import train_test_split
+
 from utils import train, test
+
+
+def set_parameter_requires_grad(model, feature_extracting):
+    if feature_extracting:
+        for param in model.parameters():
+            param.requires_grad = False
+
+
+def initialize_model(model_name, num_classes, feature_extract=True, use_pretrained=True):
+    # Initialize these variables which will be set in this if statement. Each of these
+    #   variables is model specific.
+    model_ft = None
+    input_size = 0
+
+    if model_name == "resnet":
+        """ Resnet18
+        """
+        model_ft = models.resnet18(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+    elif model_name == "alexnet":
+        """ Alexnet
+        """
+        model_ft = models.alexnet(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+    elif model_name == "vgg":
+        """ VGG11_bn
+        """
+        model_ft = models.vgg16(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+    elif model_name == "squeezenet":
+        """ Squeezenet
+        """
+        model_ft = models.squeezenet1_0(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        model_ft.classifier[1] = nn.Conv2d(512, num_classes, kernel_size=(1,1), stride=(1,1))
+        model_ft.num_classes = num_classes
+        input_size = 224
+
+    elif model_name == "densenet":
+        """ Densenet
+        """
+        model_ft = models.densenet121(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier.in_features
+        model_ft.classifier = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
+    elif model_name == "inception":
+        """ Inception v3
+        Be careful, expects (299,299) sized images and has auxiliary output
+        """
+        model_ft = models.inception_v3(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        # Handle the auxilary net
+        num_ftrs = model_ft.AuxLogits.fc.in_features
+        model_ft.AuxLogits.fc = nn.Linear(num_ftrs, num_classes)
+        # Handle the primary net
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        input_size = 299
+
+    else:
+        print("Invalid model name, exiting...")
+        exit()
+
+    return model_ft, input_size
+
+
+def get_transforms(input_size):
+    train_transform = transforms.Compose([
+        transforms.RandomResizedCrop(input_size),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+
+    test_transform = transforms.Compose([
+        transforms.Resize(input_size),
+        transforms.CenterCrop(input_size),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+
+    return train_transform, test_transform
+
+
+def get_param_to_update(model_ft, feature_extract=True):
+    params_to_update = model_ft.parameters()
+    print("Params to learn:")
+    if feature_extract:
+        params_to_update = []
+        for name, param in model_ft.named_parameters():
+            if param.requires_grad == True:
+                params_to_update.append(param)
+                print("\t", name)
+    else:
+        for name, param in model_ft.named_parameters():
+            if param.requires_grad == True:
+                print("\t", name)
+    return params_to_update
+
 
 if __name__ == '__main__':
 
+    model_name = "vgg"
+
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    model = torchvision.models.vgg16(pretrained=True)
-    # print(model.classifier[6].out_features)  # 1000
-
-    # Freeze training for all layers
-    for param in model.features.parameters():
-        param.require_grad = False
-
-    # Newly created modules have require_grad=True by default
-    num_features = model.classifier[6].in_features
-    features = list(model.classifier.children())[:-1]  # Remove last layer
-    features.extend([
-        nn.Linear(num_features, 64),
-        nn.Linear(num_features, 3)])  # Add our layer with # features outputs
-    model.classifier = nn.Sequential(*features)  # Replace the model classifier
-
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-
+    model, input_size = initialize_model(model_name, 3)
     model.to(device)
 
+    # read data
     X, y = covidata.readData()
-    transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.1, hue=0.1),
-        transforms.RandomAffine(degrees=40, translate=None, scale=(1, 2), shear=15, resample=False, fillcolor=0),
-        transforms.ToTensor(),
-        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
-    ])
-    X_test, y_test, train_loader, test_loader = covidata.createDataLoader(X, y, 32, 0.2, transform)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    # create dataset
+    train_transform, test_transform = get_transforms(input_size)
+    train_dataset = covidata.CovidDataset(X_train, y_train, train_transform)
+    test_dataset = covidata.CovidDataset(X_test, y_test, test_transform)
+    # create dataloader
+    batch_size = 32
+    train_loader = DataLoader(train_dataset, batch_size=batch_size)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size)
+
+    # get parameters
+    params = get_param_to_update(model)
+
+    criterion = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(params, lr=0.001, momentum=0.9)
 
     for epoch in range(10):
         train(model, epoch, train_loader, optimizer, criterion, device)
         test(model, test_loader, device)
+
+    # save model and test set
+    torch.save(model.state_dict(), "./saved")
+    np.save("Xtest.npy", X_test)
+    np.save("ytest.npy", y_test)

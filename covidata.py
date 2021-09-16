@@ -1,7 +1,6 @@
 import os
 import glob
 import numpy as np
-import matplotlib.pyplot as plt
 from PIL import Image
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -58,16 +57,5 @@ def createDataLoader(X, y, batch_size=32, test_ratio=0.3, transform=transforms.T
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
     return X_test, y_test, train_loader, test_loader
 
-
-if __name__ == '__main__':
-    X, y = readData()
-    print(f'X.shape {len(X)} - type(X) {type(X)}')
-    print(f'y.shape {len(y)} - type(y) {type(y)}')
-
-    dataset = CovidDataset(X, y)
-    img = dataset[10]
-    print(img)
-    for i in range(len(dataset)):
-        img, label = dataset[i]
 
 
