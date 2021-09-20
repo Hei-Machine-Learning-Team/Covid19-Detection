@@ -31,7 +31,9 @@ def test(model, test_loader, device):
             _, predicted = torch.max(outputs.data, dim=1)
             total += target.size(0)
             correct += (predicted == target).sum().item()
+    accuracy = 100 * correct / total, correct, total
     print('Accuracy on test set: %d %% [%d/%d]' % (100 * correct / total, correct, total))
+    return accuracy
 
 
 def eval_model(model, test_loader):

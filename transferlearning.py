@@ -166,9 +166,14 @@ if __name__ == '__main__':
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(params, lr=0.001, momentum=0.9)
 
+    best_accuracy = 0.0
     for epoch in range(10):
         train(model, epoch, train_loader, optimizer, criterion, device)
-        test(model, test_loader, device)
+        accuracy = test(model, test_loader, device)
+
+        # save the best model
+        if accuracy > best_accuracy:
+            torch.save(model.state_dict(), "./save")
 
     # save model and test set
     torch.save(model.state_dict(), "./saved")
