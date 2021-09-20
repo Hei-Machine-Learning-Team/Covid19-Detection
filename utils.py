@@ -2,6 +2,8 @@ import torch
 
 
 def train(model, epoch, train_loader, optimizer, criterion, device):
+    epoch_loss = 0.0
+    losses = []
     running_loss = 0.0
     for batch_idx, data in enumerate(train_loader, 0):
         inputs, target = data
@@ -15,9 +17,13 @@ def train(model, epoch, train_loader, optimizer, criterion, device):
         optimizer.step()
 
         running_loss += loss.item()
+        epoch_loss += loss.item()
         if batch_idx % 50 == 49:
             print('[%d, %5d] loss: %.3f' % (epoch + 1, batch_idx + 1, running_loss))
+            losses.append(running_loss)
             running_loss = 0.0
+
+    return epoch_loss, losses
 
 
 def test(model, test_loader, device):

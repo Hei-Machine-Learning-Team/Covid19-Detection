@@ -141,11 +141,11 @@ def get_param_to_update(model_ft, feature_extract=True):
 
 if __name__ == '__main__':
 
-    model_name = "vgg"
+    model_name = "alexnet"
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    model, input_size = initialize_model(model_name, 3)
+    model, input_size = initialize_model(model_name, 3, False, False)
     model.to(device)
 
     # read data
@@ -167,13 +167,16 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(params, lr=0.001, momentum=0.9)
 
     best_accuracy = 0.0
-    for epoch in range(10):
-        train(model, epoch, train_loader, optimizer, criterion, device)
+    # loss_record = []
+    # accuracy_record = []
+    for epoch in range(100):
+        epoch_loss, losses = train(model, epoch, train_loader, optimizer, criterion, device)
         accuracy = test(model, test_loader, device)
-
         # save the best model
         if accuracy > best_accuracy:
             torch.save(model.state_dict(), "./save")
+        # loss_record += losses
+        # accuracy_record.append(accuracy)
 
     # save model and test set
     torch.save(model.state_dict(), "./saved")
