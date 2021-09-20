@@ -58,4 +58,7 @@ def createDataLoader(X, y, batch_size=32, test_ratio=0.3, transform=transforms.T
     return X_test, y_test, train_loader, test_loader
 
 
-
+def createTestLoader(X_test, y_test, batch_size, transform):
+    test_dataset = CovidDataset(X_test, y_test, transform)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size)
+    return test_loader

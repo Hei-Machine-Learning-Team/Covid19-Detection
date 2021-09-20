@@ -1,4 +1,5 @@
 import torch
+import csv
 import numpy as np
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -53,8 +54,8 @@ def initialize_model(model_name, num_classes, feature_extract=True, use_pretrain
         model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
         input_size = 224
 
-    elif model_name == "vgg":
-        """ VGG11_bn
+    elif model_name == "vgg16":
+        """ VGG16
         """
         model_ft = models.vgg16(pretrained=use_pretrained)
         set_parameter_requires_grad(model_ft, feature_extract)
@@ -66,6 +67,15 @@ def initialize_model(model_name, num_classes, feature_extract=True, use_pretrain
                                             nn.Linear(4096, 128),
                                             nn.ReLU(inplace=True),
                                             nn.Linear(128, num_classes))
+        input_size = 224
+
+    elif model_name == "vgg11":
+        """ VGG11_bn
+        """
+        model_ft = models.vgg11_bn(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.classifier[6].in_features
+        model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
         input_size = 224
 
     elif model_name == "squeezenet":
@@ -141,7 +151,7 @@ def get_param_to_update(model_ft, feature_extract=True):
 
 if __name__ == '__main__':
 
-    model_name = "alexnet"
+    model_name = "vgg11"
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -166,19 +176,29 @@ if __name__ == '__main__':
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(params, lr=0.001, momentum=0.9)
 
+    # save test dataset for later evaluation
+    np.save("Xtest.npy", X_test)
+    np.save("ytest.npy", y_test)
+
     best_accuracy = 0.0
-    # loss_record = []
-    # accuracy_record = []
-    for epoch in range(100):
+    loss_record = []
+    accuracy_record = []
+    for epoch in range(200):
         epoch_loss, losses = train(model, epoch, train_loader, optimizer, criterion, device)
         accuracy = test(model, test_loader, device)
         # save the best model
         if accuracy > best_accuracy:
             torch.save(model.state_dict(), "./save")
         # loss_record += losses
-        # accuracy_record.append(accuracy)
+        loss_record.append(epoch_loss)
+        accuracy_record.append(accuracy)
 
-    # save model and test set
-    torch.save(model.state_dict(), "./saved")
-    np.save("Xtest.npy", X_test)
-    np.save("ytest.npy", y_test)
+        # record loss and accuracy every epoch
+        with open('record.csv', 'w', encoding='UTF8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([i+1 for i in range(epoch)])
+            writer.writerow(loss_record)
+            writer.writerow(accuracy_record)
+
+    # # save model and test set
+    # torch.save(model.state_dict(), "./saved")
