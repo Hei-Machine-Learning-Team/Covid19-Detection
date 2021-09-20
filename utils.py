@@ -2,6 +2,7 @@ import torch
 
 
 def train(model, epoch, train_loader, optimizer, criterion, device):
+    model.train()  # set model to training mode
     epoch_loss = 0.0
     losses = []
     running_loss = 0.0
@@ -27,6 +28,7 @@ def train(model, epoch, train_loader, optimizer, criterion, device):
 
 
 def test(model, test_loader, device):
+    model.eval()  # Set model to evaluate mode
     correct = 0
     total = 0
     with torch.no_grad():
