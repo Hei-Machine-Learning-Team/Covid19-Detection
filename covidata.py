@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 CLASS_MAPPING = {'COVID':0, 'Normal':1, 'Viral Pneumonia':2, 'Lung_Opacity':3}
 
-def readData(path="./COVID-19_Radiography_Dataset/", classes=['COVID', 'Normal', 'Viral Pneumonia']):
+def readData(path="/input/COVID-19_Radiography_Dataset/", classes=['COVID', 'Normal', 'Viral Pneumonia']):
     """
     :param path: path of dataset
     :param classes: folder names or labels
