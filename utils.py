@@ -24,7 +24,7 @@ def train(model, epoch, train_loader, optimizer, criterion, device):
             losses.append(running_loss)
             running_loss = 0.0
 
-    return epoch_loss, losses
+    return epoch_loss/len(train_loader.dataset), losses
 
 
 def test(model, test_loader, device):
@@ -46,16 +46,16 @@ def test(model, test_loader, device):
 
 def eval_model(model, test_loader):
     # return a confusion matrix to evaluate the model
+    confusion_matrix = torch.zeros(size=(4, 4), dtype=int)
     with torch.no_grad():
         for data in test_loader:
             inputs, target = data
             outputs = model(inputs)
             _, predicted = torch.max(outputs.data, dim=1)
-    confusion_matrix = torch.zeros(size=(4, 4), dtype=int)
-    for k in range(len(target)):
-        i = target[k]
-        j = predicted[k]
-        confusion_matrix[i][j] += 1
+            for k in range(len(target)):
+                i = target[k]
+                j = predicted[k]
+                confusion_matrix[i][j] += 1
     return confusion_matrix
 
 

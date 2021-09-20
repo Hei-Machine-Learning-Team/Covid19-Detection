@@ -183,7 +183,7 @@ if __name__ == '__main__':
     best_accuracy = 0.0
     loss_record = []
     accuracy_record = []
-    for epoch in range(200):
+    for epoch in range():
         epoch_loss, losses = train(model, epoch, train_loader, optimizer, criterion, device)
         accuracy = test(model, test_loader, device)
         # save the best model
@@ -196,9 +196,10 @@ if __name__ == '__main__':
         # record loss and accuracy every epoch
         with open('record.csv', 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow([i+1 for i in range(epoch)])
+            writer.writerow([i+1 for i in range(epoch+1)])
             writer.writerow(loss_record)
             writer.writerow(accuracy_record)
+            f.close()
 
     # # save model and test set
     # torch.save(model.state_dict(), "./saved")
