@@ -31,7 +31,7 @@ def initialize_model(model_name, num_classes, feature_extract=True, use_pretrain
         model_ft.fc = nn.Linear(num_ftrs, num_classes)
         input_size = 224
 
-    if model_name == "resnet50":
+    elif model_name == "resnet50":
         """ Resnet50
                 """
         model_ft = models.resnet50(pretrained=use_pretrained)
@@ -183,7 +183,7 @@ if __name__ == '__main__':
     best_accuracy = 0.0
     loss_record = []
     accuracy_record = []
-    for epoch in range():
+    for epoch in range(300):
         epoch_loss, losses = train(model, epoch, train_loader, optimizer, criterion, device)
         accuracy = test(model, test_loader, device)
         # save the best model
