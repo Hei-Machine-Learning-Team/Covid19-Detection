@@ -79,4 +79,19 @@ def draw_confusion_matrix(matrix):
     ax.set_ylabel('True')  # y
 
 
+def get_stat(matrix, label):
+    idx = [0, 1, 2]
+    idx.remove(label)
+    TP = matrix[label][label]  # True Positive
+    FN = np.sum([matrix[label][i] for i in idx])  # False Negative
+    FP = np.sum([matrix[i][label] for i in idx])  # False Positive
+    TN = np.sum([matrix[i][j] for i in idx for j in idx])  # True Negative
+    Precision = TP / (TP + FP)
+    Recall = TP / (TP + FN)
+    F1 = 2*TP / (2*TP + FP + FN)
+    print("label: ", label)
+    print("Precision: ", Precision)
+    print("Recall: ", Recall)
+
+
 
