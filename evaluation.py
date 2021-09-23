@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from covidata import createTestLoader
-from utils import eval_model
+from utils import eval_model, get_stat
 from transferlearning import initialize_model, get_transforms
 
 if __name__ == '__main__':
@@ -21,3 +21,5 @@ if __name__ == '__main__':
     confusion_matrix = eval_model(model, test_loader)
     print("confusion matrix:")
     print(confusion_matrix)
+    for i in range(3):
+        get_stat(confusion_matrix, i)

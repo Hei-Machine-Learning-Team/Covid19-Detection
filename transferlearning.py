@@ -184,7 +184,7 @@ if __name__ == '__main__':
     best_accuracy = 0.0
     loss_record = []
     accuracy_record = []
-    for epoch in range(300):
+    for epoch in range(150):
         epoch_loss, losses = train(model, epoch, train_loader, optimizer, criterion, device)
         accuracy = test(model, valid_loader, device)
         # save the best model
