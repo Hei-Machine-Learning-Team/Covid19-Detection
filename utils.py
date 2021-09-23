@@ -1,5 +1,8 @@
 import torch
-
+import numpy as np
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
 
 def train(model, epoch, train_loader, optimizer, criterion, device):
     model.train()  # set model to training mode
@@ -46,17 +49,34 @@ def test(model, test_loader, device):
 
 def eval_model(model, test_loader):
     # return a confusion matrix to evaluate the model
-    confusion_matrix = torch.zeros(size=(4, 4), dtype=int)
+    # confusion_matrix = torch.zeros(size=(4, 4), dtype=int)
+    # with torch.no_grad():
+    #     for data in test_loader:
+    #         inputs, target = data
+    #         outputs = model(inputs)
+    #         _, predicted = torch.max(outputs.data, dim=1)
+    #         for k in range(len(target)):
+    #             i = target[k]
+    #             j = predicted[k]
+    #             confusion_matrix[i][j] += 1
+    ret_matrix = np.zeros(shape=(3, 3))
     with torch.no_grad():
         for data in test_loader:
             inputs, target = data
             outputs = model(inputs)
             _, predicted = torch.max(outputs.data, dim=1)
-            for k in range(len(target)):
-                i = target[k]
-                j = predicted[k]
-                confusion_matrix[i][j] += 1
-    return confusion_matrix
+            batch_matrix = confusion_matrix(target, predicted, labels=[0, 1, 2])
+            ret_matrix += batch_matrix
+    return ret_matrix
+
+
+def draw_confusion_matrix(matrix):
+    f, ax = plt.subplots()
+    sns.heatmap(matrix, annot=True, ax=ax, cmap="Blues")
+
+    ax.set_title('Confusion Matrix')  # title
+    ax.set_xlabel('Predict')  # x
+    ax.set_ylabel('True')  # y
 
 
 
