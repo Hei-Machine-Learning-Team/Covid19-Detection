@@ -30,12 +30,13 @@ def train(model, epoch, train_loader, optimizer, criterion, device):
     return epoch_loss/len(train_loader.dataset), losses
 
 
-def test(model, test_loader, device):
+def test(model, val_loader, device):
+    # test on validation data
     model.eval()  # Set model to evaluate mode
     correct = 0
     total = 0
     with torch.no_grad():
-        for data in test_loader:
+        for data in val_loader:
             inputs, target = data
             inputs, target = inputs.to(device), target.to(device)
             outputs = model(inputs)

@@ -160,15 +160,16 @@ if __name__ == '__main__':
 
     # read data
     X, y = covidata.readData()
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_rem, y_train, y_rem = train_test_split(X, y, test_size=0.4)
+    X_valid, X_test, y_valid, y_test = train_test_split(X_rem, y_rem, test_size=0.5)
     # create dataset
     train_transform, test_transform = get_transforms(input_size)
     train_dataset = covidata.CovidDataset(X_train, y_train, train_transform)
-    test_dataset = covidata.CovidDataset(X_test, y_test, test_transform)
+    valid_dataset = covidata.CovidDataset(X_valid, X_valid, test_transform)
     # create dataloader
     batch_size = 32
     train_loader = DataLoader(train_dataset, batch_size=batch_size)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size)
+    valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
 
     # get parameters
     params = get_param_to_update(model)
@@ -185,7 +186,7 @@ if __name__ == '__main__':
     accuracy_record = []
     for epoch in range(300):
         epoch_loss, losses = train(model, epoch, train_loader, optimizer, criterion, device)
-        accuracy = test(model, test_loader, device)
+        accuracy = test(model, valid_loader, device)
         # save the best model
         if accuracy > best_accuracy:
             torch.save(model.state_dict(), "./save")
