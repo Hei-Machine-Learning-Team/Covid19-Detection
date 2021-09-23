@@ -189,7 +189,7 @@ if __name__ == '__main__':
         accuracy = test(model, valid_loader, device)
         # save the best model
         if accuracy > best_accuracy:
-            torch.save(model.state_dict(), "./save")
+            torch.save(model.state_dict(), "./save.pt")
         # loss_record += losses
         loss_record.append(epoch_loss)
         accuracy_record.append(accuracy)
@@ -203,4 +203,4 @@ if __name__ == '__main__':
             f.close()
 
     # # save model and test set
-    # torch.save(model.state_dict(), "./saved")
+    torch.save(model.state_dict(), "./save-end.pt")
