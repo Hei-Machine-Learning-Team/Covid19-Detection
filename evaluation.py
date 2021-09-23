@@ -19,6 +19,7 @@ if __name__ == '__main__':
     y_test = np.load(folder + "ytest.npy")
     test_loader = createTestLoader(X_test, y_test, 32, test_transform)
     confusion_matrix = eval_model(model, test_loader)
+    np.set_printoptions(suppress=True)
     print("confusion matrix:")
     print(confusion_matrix)
     for i in range(3):
