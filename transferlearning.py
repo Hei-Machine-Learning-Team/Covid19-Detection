@@ -43,7 +43,7 @@ def initialize_model(model_name, num_classes, feature_extract=True, use_pretrain
         #     nn.Linear(2048, 64),
         #     nn.ReLU(inplace=True),
         #     nn.Linear(64, 3))
-        # input_size = 224
+        input_size = 224
 
     elif model_name == "alexnet":
         """ Alexnet
