@@ -71,13 +71,15 @@ def eval_model(model, test_loader):
     return ret_matrix
 
 
-def draw_confusion_matrix(matrix):
+def draw_confusion_matrix(matrix, title="Confusion Matrix"):
     f, ax = plt.subplots()
-    sns.heatmap(matrix, annot=True, ax=ax, cmap="Blues")
+    labels = ['COVID', 'Normal', 'Viral Pneumonia']
+    sns.heatmap(matrix, annot=True, ax=ax, cmap="Blues", cbar=False, fmt='g', xticklabels=labels, yticklabels=labels)
 
-    ax.set_title('Confusion Matrix')  # title
+    ax.set_title(title)  # title
     ax.set_xlabel('Predict')  # x
     ax.set_ylabel('True')  # y
+    plt.show()
 
 
 def get_stat(matrix, label):
@@ -90,13 +92,17 @@ def get_stat(matrix, label):
     Accuracy = np.sum([matrix[i][i] for i in range(3)]) / np.sum(matrix)
     Precision = TP / (TP + FP)
     Recall = TP / (TP + FN)
+    Specificity = TN / (FP + TN)
     F1 = 2*TP / (2*TP + FP + FN)
 
     print("label: ", label)
     print("Precision: ", Precision)
-    print("F1: ", F1)
     print("Recall: ", Recall)
+    print("Specificity: ", Specificity)
+    print("F1: ", F1)
     print("Overall Accuracy: ", Accuracy)
+    print("& %0.3f & %0.3f & %0.3f & %0.3f " % (Precision, Recall, Specificity, F1))
+
 
 
 
