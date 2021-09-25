@@ -4,7 +4,7 @@ import seaborn as sns
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 
-def train(model, epoch, train_loader, optimizer, criterion, device):
+def train(model, epoch, train_loader, optimizer, criterion, device, is_inception=False):
     model.train()  # set model to training mode
     epoch_loss = 0.0
     losses = []
@@ -14,9 +14,17 @@ def train(model, epoch, train_loader, optimizer, criterion, device):
         inputs, target = inputs.to(device), target.to(device)
         optimizer.zero_grad()
 
-        # forward + backward + update
-        outputs = model(inputs)
-        loss = criterion(outputs, target.long())
+        # forward
+        if not is_inception:
+            outputs = model(inputs)
+            loss = criterion(outputs, target.long())
+        else:  # inception-v3 network
+            outputs, aux_outputs = model(inputs)
+            loss1 = criterion(outputs, target)
+            loss2 = criterion(aux_outputs, target)
+            loss = loss1 + 0.4 * loss2
+
+        # backward + update
         loss.backward()
         optimizer.step()
 

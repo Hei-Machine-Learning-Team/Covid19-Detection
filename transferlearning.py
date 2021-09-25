@@ -43,7 +43,7 @@ def initialize_model(model_name, num_classes, feature_extract=True, use_pretrain
         #     nn.Linear(2048, 64),
         #     nn.ReLU(inplace=True),
         #     nn.Linear(64, 3))
-        # input_size = 224
+        input_size = 224
 
     elif model_name == "alexnet":
         """ Alexnet
@@ -151,7 +151,9 @@ def get_param_to_update(model_ft, feature_extract=True):
 
 if __name__ == '__main__':
 
-    model_name = "alexnet"
+    model_name = "inception"
+
+    is_inception = (model_name=="inception")
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -185,7 +187,7 @@ if __name__ == '__main__':
     loss_record = []
     accuracy_record = []
     for epoch in range(150):
-        epoch_loss, losses = train(model, epoch, train_loader, optimizer, criterion, device)
+        epoch_loss, losses = train(model, epoch, train_loader, optimizer, criterion, device, is_inception)
         accuracy = test(model, valid_loader, device)
         # save the best model
         if accuracy > best_accuracy:
